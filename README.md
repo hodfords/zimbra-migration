@@ -15,3 +15,4 @@ There are 2 scripts; one for exporting all of the data which needs to be run on 
 # How to Use
 We recommend that the 2 scripts be put in /opt/scripts/. Before they can be run they need to be executable. export_zimbra.sh should be run on the server you are migrating from and will output all of the data to /opt/zmbackup/. Important to note that emails will not be exported as it would occupy too much storage. Instead emails are migrated using imapsync. 
 
+When running export_zimbra.sh and import_zimbra.sh make sure that Zimbra is running. 
