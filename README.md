@@ -24,7 +24,7 @@ To export Zimbra (To be run on the server that you are migrating from) - run as 
 cd /opt/
 mkdir scripts
 cd scripts
-wget https://github.com/hodfords/zimbra-migration/edit/main/export_zimbra.sh
+wget https://raw.githubusercontent.com/hodfords/zimbra-migration/main/src/export_zimbra.sh
 chmod 755 export_zimbra.sh
 ./export_zimbra.sh
 ```
@@ -34,7 +34,7 @@ Once all the data has finished exporting - you can import on the new server - ru
 cd /opt/
 mkdir scripts
 cd scripts
-wget https://github.com/hodfords/zimbra-migration/edit/main/import_zimbra.sh
+wget https://raw.githubusercontent.com/hodfords/zimbra-migration/main/src/import_zimbra.sh
 chmod 755 import_zimbra.sh
 ./import_zimbra.sh 111.222.333.444
 ```
