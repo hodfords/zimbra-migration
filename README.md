@@ -20,20 +20,24 @@ When running export_zimbra.sh and import_zimbra.sh make sure that Zimbra is runn
 To use:- 
 
 To export Zimbra (To be run on the server that you are migrating from) - run as root
+```
 cd /opt/
 mkdir scripts
 cd scripts
 wget https://github.com/hodfords/zimbra-migration/edit/main/export_zimbra.sh
 chmod 755 export_zimbra.sh
-./export_zimbra.sh 
+./export_zimbra.sh
+```
 
 Once all the data has finished exporting - you can import on the new server - run as root
+```
 cd /opt/
 mkdir scripts
 cd scripts
 wget https://github.com/hodfords/zimbra-migration/edit/main/import_zimbra.sh
 chmod 755 import_zimbra.sh
 ./import_zimbra.sh 111.222.333.444
+```
 
 111.222.333.444 is the server address containing the export data and the server you are trying to migrate from.
 
