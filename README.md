@@ -52,7 +52,14 @@ chmod 755 import_zimbra.sh
 - stat
   
 # Known Bugs
-- During the export process - if your calendar has a lot of entries then Zimbra times out and the export process does not output the calendar at all. 
+- During the export process - if your calendar has a lot of entries then Zimbra times out and the export process does not output the calendar at all.
+This blog has a lot of really useful information:-
+https://www.anahuac.eu/zimbra-to-carbonio-z2c/
+
+And this might resolve the export and import issues. 
+zmlocalconfig -e socket_so_timeout=99999999
+zmlocalconfig --reload
+
 
 
 
