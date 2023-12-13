@@ -57,9 +57,11 @@ This blog has a lot of really useful information:-
 https://www.anahuac.eu/zimbra-to-carbonio-z2c/
 
 And this might resolve the export and import issues. 
+```
+su zimbra
 zmlocalconfig -e socket_so_timeout=99999999
 zmlocalconfig --reload
-
+```
 
 
 
