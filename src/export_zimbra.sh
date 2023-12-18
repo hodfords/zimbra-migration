@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Written by Hodfords.com Ltd (https://www.hodfords.com/) - Project Started in November 2023
+# Written by Hodfords.com Ltd (https://www.hodfords.com/) - November 2023
 # Released under GNU General Public License v3 (GPL-3)
 #
 # This script is free for anyone to use and can be distributed freely 
@@ -128,7 +128,7 @@ else
 fi
 
 echo "Exporting Calendars..."
-for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Calendar?fmt=ics" > ${BACKUP_DIR}/calendar/$i.ics; echo -e "Finished downloading Calendar of $i" ; done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Calendar?fmt=tgz" > ${BACKUP_DIR}/calendar/$i.tgz; echo -e "Finished downloading Calendar of $i" ; done
 echo -en ''
 sleep 1
 
