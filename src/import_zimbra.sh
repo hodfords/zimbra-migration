@@ -303,13 +303,14 @@ if [ ${RESPONSE_VAR} == "y" ]
   for i in `cat ${BACKUP_DIR}/emails.txt`
   do  
   #signatures
-  if [ -e ${BACKUP_DIR}/calendar/$i.ics ]
+  if [ -e ${BACKUP_DIR}/calendar/$i.tgz ]
   then
-  FILESIZE=$(stat -c%s "${BACKUP_DIR}/calendar/$i.ics")
-      if [ ${FILESIZE} -gt 180 ]
+  FILESIZE=$(stat -c%s "${BACKUP_DIR}/calendar/$i.tgz")
+      if [ ${FILESIZE} -gt 0 ]
       then
       echo "Calendars import for $i"
-      /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/Calendar/?fmt=ics&resolve=skip" "${BACKUP_DIR}/calendar/$i.ics"
+      #/opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/Calendar/?fmt=ics&resolve=skip" "${BACKUP_DIR}/calendar/$i.ics"
+      /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "${BACKUP_DIR}/calendar/$i.tgz"
       #curl -k -u admin:${ADMIN_PASSWORD} --upload-file '${BACKUP_DIR}/calendar/$i.ics' https://localhost:7071/home/$i/calendar?fmt=ics 
       echo "Calendars imported for $i"
       fi
