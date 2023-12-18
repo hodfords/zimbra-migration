@@ -225,16 +225,6 @@ ${LINE}"
             fi 
           ((linei=linei+1))
           done < "${BACKUP_DIR}/signatures/$i.txt"
-        ##zimbraPrefMailSignatureHTML=$(grep zimbraPrefMailSignatureHTML: ${BACKUP_DIR}/signatures/$i.txt | cut -d ":" -f2)
-        ##zimbraPrefMailSignatureHTML=`echo $zimbraPrefMailSignatureHTML | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-        ##zimbraSignatureId=$(grep zimbraSignatureId: ${BACKUP_DIR}/signatures/$i.txt | cut -d ":" -f2)
-        ##zimbraSignatureId=`echo $zimbraySignatureId | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-        ##zimbraSignatureName=$(grep zimbraSignatureName: ${BACKUP_DIR}/signatures/$i.txt | cut -d ":" -f2)
-        ##zimbraSignatureName=`echo $zimbraSignatureName | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-        ##sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefMailSignatureHTML "$zimbraPrefMailSignatureHTML"
-        ##sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraSignatureId "$zimbraSignatureId"
-        ##sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraSignatureName "$zimbraSignatureName"
-        ##echo "Signature imported for $i with ID $zimbraSignatureId"
         fi
     fi
 
@@ -286,8 +276,6 @@ if [ ${RESPONSE_VAR} == "y" ]
       then
       echo "Contacts import for $i"
       /opt/zimbra/bin/zmmailbox -z -m $i pru /Contacts "${BACKUP_DIR}/contacts/$i.csv"
-      #The curl method works too and is faster but requires admin password
-      #curl -k -u admin:${ADMIN_PASSWORD} --upload-file '${BACKUP_DIR}/contacts/$i.csv' https://localhost:7071/home/$i/Contacts?fmt=csv 
       echo "Contacts imported for $i"
       fi
   fi  
@@ -309,9 +297,7 @@ if [ ${RESPONSE_VAR} == "y" ]
       if [ ${FILESIZE} -gt 0 ]
       then
       echo "Calendars import for $i"
-      #/opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/Calendar/?fmt=ics&resolve=skip" "${BACKUP_DIR}/calendar/$i.ics"
       /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "${BACKUP_DIR}/calendar/$i.tgz"
-      #curl -k -u admin:${ADMIN_PASSWORD} --upload-file '${BACKUP_DIR}/calendar/$i.ics' https://localhost:7071/home/$i/calendar?fmt=ics 
       echo "Calendars imported for $i"
       fi
   fi  
@@ -334,7 +320,6 @@ if [ ${RESPONSE_VAR} == "y" ]
       then
       echo "Briefcase import for $i"
       /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/Briefcase/?fmt=tgz&resolve=skip" "${BACKUP_DIR}/briefcase/$i.tgz"
-      #curl -k -u admin:${ADMIN_PASSWORD} --upload-file '${BACKUP_DIR}/calendar/$i.ics' https://localhost:7071/home/$i/calendar?fmt=ics 
       echo "Briefcase imported for $i"
       fi
   fi  
