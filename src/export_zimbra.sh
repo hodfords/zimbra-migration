@@ -77,7 +77,7 @@ echo "Exporting only accounts for ${DOMAIN}"
 #DOMAINRESULT=$(sudo -u zimbra /opt/zimbra/bin/zmprov -l gad 2>&1)
 DOMAINRESULT=$(sudo -u zimbra /opt/zimbra/bin/zmprov -l gd ${DOMAIN} 2>&1)
 
-if [[ ${DOMAINRESULT} == *"NO_SUCH_DOMAIN"* ]]; then
+if [ ${DOMAINRESULT} == *"NO_SUCH_DOMAIN"* ]; then
 echo "Domain name ${DOMAIN} does not exist"
 exit
 else 
