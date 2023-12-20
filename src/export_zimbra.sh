@@ -16,6 +16,8 @@
 ## 
 ## Recommended location : /opt/scripts/export_zimbra.sh
 ## Remember to make the script executable by running: chmod 755 /opt/scripts/export_zimbra.sh
+# 
+# To export only the accounts for a single domain run  ./export_zimbra.sh xxxx.com
 BACKUP_DIR="/opt/zmbackup"
 
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
@@ -50,19 +52,50 @@ if [ ${RESPONSE_VAR} != "y" ]
   exit 0
 fi 
 
+if [ -z "$1" ]
+  then
+        echo "Will only export for Domain : $1"
+        DOMAIN=$1
+        echo ""
+        sleep 1
+  else
+        DOMAIN="OFF"
+fi
+
 ## Export coses
 ##echo "Exporting coses..."
 ##/opt/zimbra/common/sbin/slapcat -F /opt/zimbra/data/ldap/config -b "" -s "cn=cos,cn=zimbra" -H ldap:///???(&(objectClass=zimbraCos)(!(cn=default))(!(cn=defaultExternal))) -l ${BACKUP_DIR}/coses.ldif
 
 ## Export domains
+if [ ${DOMAIN} == "OFF" ]
+then
 echo "Exporting domains..."
 sudo -u zimbra /opt/zimbra/bin/zmprov -l gad > ${BACKUP_DIR}/domains.txt
 chown -R zimbra:zimbra ${BACKUP_DIR}/domains.txt
+else 
+echo "Exporting only accounts for ${DOMAIN}"
+#DOMAINRESULT=$(sudo -u zimbra /opt/zimbra/bin/zmprov -l gad 2>&1)
+DOMAINRESULT=$(sudo -u zimbra /opt/zimbra/bin/zmprov -l gd ${DOMAIN} 2>&1)
+
+if [[ ${DOMAINRESULT} == *"NO_SUCH_DOMAIN"* ]]; then
+echo "Domain name ${DOMAIN} does not exist"
+exit
+else 
+echo ${DOMAIN} > ${BACKUP_DIR}/domains.txt
+chown -R zimbra:zimbra ${BACKUP_DIR}/domains.txt
+fi
 
 ## Export Users
+if [ ${DOMAIN} == "OFF" ]
+then
 echo "Exporting users..."
 sudo -u zimbra /opt/zimbra/bin/zmprov -l gaa > ${BACKUP_DIR}/emails.txt
 chown -R zimbra:zimbra ${BACKUP_DIR}/emails.txt
+else 
+echo "Exporting only users for ${DOMAIN}"
+sudo -u zimbra /opt/zimbra/bin/zmprov -l gaa ${DOMAIN} > ${BACKUP_DIR}/emails.txt
+chown -R zimbra:zimbra ${BACKUP_DIR}/emails.txt
+fi
 
 ## Display Output
 echo "Domains Output:-"
@@ -284,6 +317,28 @@ echo "Exporting forwarders..."
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep 'zimbraMailForwardingAddress:' > ${BACKUP_DIR}/forwarders/${i}_hidden.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep 'zimbraPrefMailForwardingAddress:' > ${BACKUP_DIR}/forwarders/${i}_userdefined.txt ; done
 echo "Exported All forwarders..."
+
+#export Settings 
+if [ ! -d "$BACKUP_DIR"/settings ]; then
+  # Create directory
+  echo "Creating ${BACKUP_DIR}/settings..."
+  mkdir ${BACKUP_DIR}/settings
+  echo "Chown zimbra:zimbra ${BACKUP_DIR}/settings..."
+  chown -R zimbra:zimbra ${BACKUP_DIR}/settings
+else
+  # Directory Found
+  echo "Found ${BACKUP_DIR}/settings..."
+  echo "Chown just in case zimbra:zimbra ${BACKUP_DIR}/settings..."
+  chown -R zimbra:zimbra ${BACKUP_DIR}/settings
+fi
+
+#export forwarders
+echo "Exporting individual settings..."
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraPref > ${BACKUP_DIR}/settings/${i}_prefs.txt ; done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraShare > ${BACKUP_DIR}/settings/${i}_shared.txt ; done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraIntercept > ${BACKUP_DIR}/settings/${i}_intercept.txt ; done
+echo "Exported individual settings..."
+
 
 #Export Catch-all accounts
 echo "Exporting Catch-alls..."
