@@ -54,12 +54,13 @@ fi
 
 if [ -z "$1" ]
   then
-        echo "Will only export for Domain : $1"
-        DOMAIN=$1
-        echo ""
-        sleep 1
-  else
+        echo "Will export all domains"
         DOMAIN="OFF"
+  else
+        echo "Will only export for Domain : $1"
+        echo ""
+        DOMAIN=$1
+        sleep 1
 fi
 
 ## Export coses
@@ -67,7 +68,7 @@ fi
 ##/opt/zimbra/common/sbin/slapcat -F /opt/zimbra/data/ldap/config -b "" -s "cn=cos,cn=zimbra" -H ldap:///???(&(objectClass=zimbraCos)(!(cn=default))(!(cn=defaultExternal))) -l ${BACKUP_DIR}/coses.ldif
 
 ## Export domains
-if [ ${DOMAIN} == "OFF" ]
+if [ "$DOMAIN" == "OFF" ]
 then
 echo "Exporting domains..."
 sudo -u zimbra /opt/zimbra/bin/zmprov -l gad > ${BACKUP_DIR}/domains.txt
@@ -76,8 +77,9 @@ else
 echo "Exporting only accounts for ${DOMAIN}"
 #DOMAINRESULT=$(sudo -u zimbra /opt/zimbra/bin/zmprov -l gad 2>&1)
 DOMAINRESULT=$(sudo -u zimbra /opt/zimbra/bin/zmprov -l gd ${DOMAIN} 2>&1)
+fi
 
-if [ ${DOMAINRESULT} == *"NO_SUCH_DOMAIN"* ]; then
+if [ "$DOMAINRESULT" == *"NO_SUCH_DOMAIN"* ]; then
 echo "Domain name ${DOMAIN} does not exist"
 exit
 else 
@@ -86,7 +88,7 @@ chown -R zimbra:zimbra ${BACKUP_DIR}/domains.txt
 fi
 
 ## Export Users
-if [ ${DOMAIN} == "OFF" ]
+if [ "$DOMAIN" == "OFF" ]
 then
 echo "Exporting users..."
 sudo -u zimbra /opt/zimbra/bin/zmprov -l gaa > ${BACKUP_DIR}/emails.txt
@@ -358,4 +360,3 @@ fi
 echo "Export Catch-alls..."
 for i in `cat ${BACKUP_DIR}/domains.txt `; do sudo -u zimbra /opt/zimbra/bin/zmprov gd $i | grep CatchAll > ${BACKUP_DIR}/catchall/$i.txt ; done
 echo "Exported Catch-alls..."
-
