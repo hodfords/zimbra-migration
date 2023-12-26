@@ -8,7 +8,7 @@
 # You are solely responsible for adequate protection and backup of the data and equipment used in connection with any of this script, and we will not be liable for any damages that you may suffer connection with downloading, installing, using, modifying or distributing such script.
 ## To be run on the source server (the server that you are migrating away from)
 #
-# The script will create backup of domains, users, passwords, calendars, contacts, briefcases, mailfilters, auto-responders
+# The script will create backup of domains, users, passwords, calendars, contacts, briefcases, mailfilters, auto-responders, preferences, shared resources
 # The migration of mailbox should be done with import_zimbra.sh (if you are migrating to another Zimbra server)
 # 
 ## Tested running Zimbra 8.8.15 
@@ -334,6 +334,11 @@ else
   chown -R zimbra:zimbra ${BACKUP_DIR}/settings
 fi
 
+echo "Exporting Global Settings..."
+sudo -u zimbra /opt/zimbra/bin/zmprov gs `zmhostname` ${BACKUP_DIR}/global_settings.txt
+chown -R zimbra:zimbra ${BACKUP_DIR}/global_settings.txt
+echo "Exported Global Settings"
+
 #export forwarders
 echo "Exporting individual settings..."
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraPref > ${BACKUP_DIR}/settings/${i}_prefs.txt ; done
@@ -360,3 +365,4 @@ fi
 echo "Export Catch-alls..."
 for i in `cat ${BACKUP_DIR}/domains.txt `; do sudo -u zimbra /opt/zimbra/bin/zmprov gd $i | grep CatchAll > ${BACKUP_DIR}/catchall/$i.txt ; done
 echo "Exported Catch-alls..."
+
