@@ -55,6 +55,8 @@ chmod 755 import_zimbra.sh
 - During the export and potentially the import process - if your calendar has a lot of entries then Zimbra times out and the export process does not output the calendar at all.
 This blog has a lot of really useful information:-
 https://www.anahuac.eu/zimbra-to-carbonio-z2c/
+- We still need to add the export and re-import of different calendars, briefcases and contacts
+- We still need to add the import of shared calendars, briefcases, contacts 
 
 And this might resolve the export and import issues. 
 ```
