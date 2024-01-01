@@ -19,6 +19,7 @@
 # 
 # To export only the accounts for a single domain run  ./export_zimbra.sh xxxx.com
 BACKUP_DIR="/opt/zmbackup"
+REGEX_FOLDER_TOP="\/[^\/]+"
 
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
 sleep 1
@@ -148,25 +149,6 @@ echo "Exporting user data completed..."
 echo "Domains Output of User pass + data:-"
 ls -llR ${BACKUP_DIR}/userdata/ ${BACKUP_DIR}/userpass/
 
-## Export Calendar Events
-if [ ! -d "$BACKUP_DIR"/calendar ]; then
-  # Create directory
-  echo "Creating ${BACKUP_DIR}/calendar..."
-  mkdir ${BACKUP_DIR}/calendar
-  echo "Chown zimbra:zimbra ${BACKUP_DIR}/calendar..."
-  chown -R zimbra:zimbra ${BACKUP_DIR}/calendar
-else
-  # Directory Found
-  echo "Found ${BACKUP_DIR}/calendar..."
-  echo "Chown just in case zimbra:zimbra ${BACKUP_DIR}/calendar..."
-  chown -R zimbra:zimbra ${BACKUP_DIR}/calendar
-fi
-
-echo "Exporting Calendars..."
-for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Calendar?fmt=tgz" > ${BACKUP_DIR}/calendar/$i.tgz; echo -e "Finished downloading Calendar of $i" ; done
-echo -en ''
-sleep 1
-
 ## Export Contacts Events
 if [ ! -d "$BACKUP_DIR"/contacts ]; then
   # Create directory
@@ -185,24 +167,6 @@ echo "Exporting contacts..."
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Contacts?fmt=csv" > ${BACKUP_DIR}/contacts/$i.csv; echo -e "Finished downloading Contacts of $i";done
 echo -en ''
 sleep 1
-
-## Export Briefcase
-if [ ! -d "$BACKUP_DIR"/briefcase ]; then
-  # Create directory
-  echo "Creating ${BACKUP_DIR}/briefcase..."
-  mkdir ${BACKUP_DIR}/briefcase
-  echo "Chown zimbra:zimbra ${BACKUP_DIR}/briefcase..."
-  chown -R zimbra:zimbra ${BACKUP_DIR}/briefcase
-else
-  # Directory Found
-  echo "Found ${BACKUP_DIR}/briefcase..."
-  echo "Chown just in case zimbra:zimbra ${BACKUP_DIR}/briefcase..."
-  chown -R zimbra:zimbra ${BACKUP_DIR}/briefcase
-fi
-
-echo "Exporting Briefcase..."
-for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL '/Briefcase/?fmt=tgz' > ${BACKUP_DIR}/briefcase/$i.tgz ; done
-echo "Finished Exporting Briefcase..."
 
 ## Export Mail Filter Rules
 if [ ! -d "$BACKUP_DIR"/filters ]; then
@@ -341,11 +305,120 @@ echo "Exported Global Settings"
 
 #export forwarders
 echo "Exporting individual settings..."
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getAllFolders > ${BACKUP_DIR}/settings/${i}_folders.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraPref > ${BACKUP_DIR}/settings/${i}_prefs.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraShare > ${BACKUP_DIR}/settings/${i}_shared.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraIntercept > ${BACKUP_DIR}/settings/${i}_intercept.txt ; done
 echo "Exported individual settings..."
 
+## Export Briefcase
+if [ ! -d "$BACKUP_DIR"/briefcase ]; then
+  # Create directory
+  echo "Creating ${BACKUP_DIR}/briefcase..."
+  mkdir ${BACKUP_DIR}/briefcase
+  echo "Chown zimbra:zimbra ${BACKUP_DIR}/briefcase..."
+  chown -R zimbra:zimbra ${BACKUP_DIR}/briefcase
+else
+  # Directory Found
+  echo "Found ${BACKUP_DIR}/briefcase..."
+  echo "Chown just in case zimbra:zimbra ${BACKUP_DIR}/briefcase..."
+  chown -R zimbra:zimbra ${BACKUP_DIR}/briefcase
+fi
+
+echo "Exporting Briefcase..."
+for i in `cat ${BACKUP_DIR}/emails.txt`
+do
+  if [ ! -d "$BACKUP_DIR"/briefcase/${i} ]; then
+  mkdir ${BACKUP_DIR}/briefcase/${i}
+  chown -R zimbra:zimbra ${BACKUP_DIR}/briefcase/${i}
+  fi
+
+  # Go through to see what folders are available 
+  if [ -e ${BACKUP_DIR}/settings/${i}_folders.txt ]
+  then
+  declare -A folderarray  
+    while read -r LINE
+        do
+          if [[ ${LINE} == *"  docu "* ]]; then
+            #We only need to export the top level of any folder 
+            [[ ${LINE} =~ $REGEX_FOLDER_TOP ]]
+            INDEX1=${BASH_REMATCH[0]}
+            folderarray[$INDEX1]="1"
+          fi
+        done < "${BACKUP_DIR}/settings/${i}_folders.txt"
+  fi
+
+  #output all briefcase folders 
+  for folder in "${!folderarray[@]}"
+  do 
+    #The reason for this is that shared folders from other accounts can be here and we don't really want to export those 
+    if [[ $folder != *")"* ]]; then
+    echo "Export Folder : $folder"
+    sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "${folder}/?fmt=tgz" > "${BACKUP_DIR}/briefcase/${i}${folder}.tgz"
+    echo "Finished Exporting Folder : $folder"
+    fi
+  done
+unset folderarray
+unset folder
+done
+echo "Finished Exporting Briefcase..."
+
+
+## Export Calendar Events
+if [ ! -d "$BACKUP_DIR"/calendar ]; then
+  # Create directory
+  echo "Creating ${BACKUP_DIR}/calendar..."
+  mkdir ${BACKUP_DIR}/calendar
+  echo "Chown zimbra:zimbra ${BACKUP_DIR}/calendar..."
+  chown -R zimbra:zimbra ${BACKUP_DIR}/calendar
+else
+  # Directory Found
+  echo "Found ${BACKUP_DIR}/calendar..."
+  echo "Chown just in case zimbra:zimbra ${BACKUP_DIR}/calendar..."
+  chown -R zimbra:zimbra ${BACKUP_DIR}/calendar
+fi
+
+echo "Exporting Calendars..."
+for i in `cat ${BACKUP_DIR}/emails.txt`
+do 
+
+  if [ ! -d "$BACKUP_DIR"/calendar/${i} ]; then
+  mkdir ${BACKUP_DIR}/calendar/${i}
+  chown -R zimbra:zimbra ${BACKUP_DIR}/calendar/${i}
+  fi
+  
+  #sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Calendar?fmt=tgz" > ${BACKUP_DIR}/calendar/$i/Calendar.tgz
+  if [ -e ${BACKUP_DIR}/settings/${i}_folders.txt ]
+  then
+  declare -A folderarray
+    while read -r LINE
+        do
+          if [[ ${LINE} == *"  appo "* ]]; then
+            #We only need to export the top level of any folder 
+            [[ ${LINE} =~ $REGEX_FOLDER_TOP ]]
+            INDEX1=${BASH_REMATCH[0]}
+            folderarray[$INDEX1]="1"
+          fi
+        done < "${BACKUP_DIR}/settings/${i}_folders.txt"
+  fi
+
+  #output all calendars 
+  for folder in "${!folderarray[@]}"
+  do 
+    #The reason for this is that shared folders from other accounts can be here and we don't really want to export those 
+    if [[ $folder != *")"* ]]; then
+    echo "Export Calendar Folder : $folder"
+    sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "${folder}/?fmt=tgz" > "${BACKUP_DIR}/calendar/${i}${folder}.tgz"
+    echo "Finished Exporting Calendar Folder : $folder"
+    fi
+  done
+unset folderarray
+unset folder
+echo -e "Finished exporting Calendar(s) of $i"
+done
+echo "Finished Exporting All Calendars"
+echo -en ''
+sleep 1
 
 #Export Catch-all accounts
 echo "Exporting Catch-alls..."
@@ -365,4 +438,3 @@ fi
 echo "Export Catch-alls..."
 for i in `cat ${BACKUP_DIR}/domains.txt `; do sudo -u zimbra /opt/zimbra/bin/zmprov gd $i | grep CatchAll > ${BACKUP_DIR}/catchall/$i.txt ; done
 echo "Exported Catch-alls..."
-
