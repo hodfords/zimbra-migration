@@ -456,18 +456,6 @@ echo "Do you want to import Emails now? (y/n)"
 read RESPONSE_VAR
 if [ ${RESPONSE_VAR} == "y" ]
   then
-
-  echo "Sometimes when mailboxes contain a lot messages e.g. 1 million or more during the header parse process imapsync will die"
-  echo "To circumvent this we can break up the import process - if we breakup by the process it would take longer but ensure that the process would work"
-  echo "Do you want to break up the import process (y/n)"
-  read BREAKUP_IMPORT 
-  if [ ${BREAKUP_IMPORT} == "n" ]
-  then
-
-  else 
-
-  fi  
-
   #Check whether imapsync is installed
   if command -v imapsync > /dev/null 2>&1; then
     echo "imapsync exists - great!"
@@ -558,3 +546,5 @@ fi
 
 # zimbraSharedItem: granteeId:f8822818-3f39-4e27-a453-568e71f4fb09;granteeName:grantee@grantee.com;granteeType:usr;folderId:182586;folderUuid:null;folderPath:/Notebook/XXXXSmith;folderDefaultView:document;rights:r;type:folder
 # This works for Briefcases too:- zmmailbox -z -m email@email.com mfg '/Notebook/Shared' account grantee@grantee.com rwidx
+
+
