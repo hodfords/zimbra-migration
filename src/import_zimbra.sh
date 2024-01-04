@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Written by Hodfords.com Ltd (https://www.hodfords.com/) - November 2023
+# Written by Hodfords.com Ltd (https://www.hodfords.com/)
 # Released under GNU General Public License v3 (GPL-3)
 #
 # This script is free for anyone to use and can be distributed freely 
@@ -299,12 +299,12 @@ if [ ${RESPONSE_VAR} == "y" ]
     then
         for calendar in ${BACKUP_DIR}/calendar/$i/*.tgz
         do
-        FILESIZE=$(stat -c%s "${BACKUP_DIR}/calendar/$i/$calendar.tgz")
+        FILESIZE=$(stat -c%s "$calendar")
           if [ ${FILESIZE} -gt 0 ]
           then
-          echo "Main Calendar: $calendar.tgz import for $i"
-          sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "${BACKUP_DIR}/calendar/$i/$calendar.tgz"
-          echo "Main Calendar: $calendar.tgz imported for $i"
+          echo "Main Calendar: $calendar import for $i"
+          sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "$calendar"
+          echo "Main Calendar: $calendar imported for $i"
           fi
         done
     fi  
@@ -325,12 +325,12 @@ if [ ${RESPONSE_VAR} == "y" ]
     then
         for briefcase in ${BACKUP_DIR}/briefcase/$i/*.tgz
         do
-        FILESIZE=$(stat -c%s "${BACKUP_DIR}/briefcase/$i/$briefcase.tgz")
+        FILESIZE=$(stat -c%s "$briefcase")
           if [ ${FILESIZE} -gt 0 ]
           then
-          echo "Main Briefcase: $briefcase.tgz import for $i"
-          sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "${BACKUP_DIR}/briefcase/$i/$briefcase.tgz"
-          echo "Main Briefcase: $briefcase.tgz imported for $i"
+          echo "Main Briefcase: $briefcase import for $i"
+          sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "$briefcase"
+          echo "Main Briefcase: $briefcase imported for $i"
           fi
         done
     fi  
@@ -456,6 +456,18 @@ echo "Do you want to import Emails now? (y/n)"
 read RESPONSE_VAR
 if [ ${RESPONSE_VAR} == "y" ]
   then
+
+  echo "Sometimes when mailboxes contain a lot messages e.g. 1 million or more during the header parse process imapsync will die"
+  echo "To circumvent this we can break up the import process - if we breakup by the process it would take longer but ensure that the process would work"
+  echo "Do you want to break up the import process (y/n)"
+  read BREAKUP_IMPORT 
+  if [ ${BREAKUP_IMPORT} == "n" ]
+  then
+
+  else 
+
+  fi  
+
   #Check whether imapsync is installed
   if command -v imapsync > /dev/null 2>&1; then
     echo "imapsync exists - great!"
@@ -472,8 +484,9 @@ if [ ${RESPONSE_VAR} == "y" ]
     # before
     # imapsync --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" 
     # imapsync --addheader --nosyncacls --syncinternaldates --nofoldersizes --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 ""   
-    
-    imapsync --errorsmax 100000 --nosyncacls --subscribe --syncinternaldates --nofoldersizes --skipsize --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 ""
+      # Need to divide up - if mailboxes are really large - read RESPONSE_VAR
+
+    imapsync --addheader --errorsmax 100000 --nosyncacls --subscribe --syncinternaldates --nofoldersizes --skipsize --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" --regexflag "s/:FLAG/_FLAG/g" --exclude "Chats"
     echo "Finished Migration of emails for $i"
     done  
   else
