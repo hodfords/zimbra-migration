@@ -6,7 +6,9 @@ This script is free for anyone to use and can be distributed freely
 You are solely responsible for adequate protection and backup of the data and equipment used in connection with any of this script, and we will not be liable for any damages that you may suffer connection with downloading, installing, using, modifying or distributing such script.
 
 # Zimbra Migration Script
-The script allows you to migrate emails, account passwords, domains, contacts, calendars, briefcases, auto-responders, filters, forwarders, aliases, distribution lists and signatures between Zimbra installations. This script has been tested on 8.8.15 and allows you to transfer between Zimbra instances on different operating systems and different Zimbra versions. So in theory you can migrate from Zimbra 8 to 9 using this script. 
+The script allows you to migrate emails, account passwords, domains, contacts, calendars, briefcases, auto-responders, filters, forwarders, aliases, distribution lists, legal intercepts, preferences and signatures between Zimbra installations. This script has been tested on 8.8.15 and allows you to transfer between Zimbra instances on different operating systems and different Zimbra versions. So in theory you can migrate from Zimbra 8 to 9 using this script. 
+
+We just added the export and import of shared settings; so that shared calendars, briefcases, contact groups can now be migrated. 
 
 So this script allows you to migrate from Centos 6 to Centos 7 or Centos 8; or from Centos to Ubuntu and between different versions of Zimbra. 
 
