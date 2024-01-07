@@ -19,6 +19,8 @@
 ## Recommended location : /opt/scripts/import_zimbra.sh
 ## Remember to make the script executable by running: chmod 755 /opt/scripts/import_zimbra.sh
 BACKUP_DIR="/opt/zmbackup"
+#Preferences that will be imported - add or delete as you see fit 
+IMPORT_PREF=("zimbraPrefLocale" "zimbraPrefGroupMailBy" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontFamily" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefFromAddress" "zimbraPrefFromDisplay" "zimbraPrefGalAutoCompleteEnabled" "zimbraPrefComposeFormat" "zimbraPrefCalendarViewTimeInterval" "zimbraPrefCalendarInitialView" "zimbraPrefMailTrustedSenderList" "zimbraPrefMandatorySpellCheckEnabled" "zimbraPrefOutOfOfficeReplyEnabled" "zimbraPrefTimeZoneId" "zimbraPrefSkin")
 
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
 sleep 1
@@ -521,15 +523,53 @@ if [ ${RESPONSE_VAR} == "y" ]
       then
         while read -r LINE
           do
-             if [[ ${LINE} == *"zimbraMailAlias:"* ]]; then
-              zimbraMailAlias=${LINE/zimbraMailAlias:/}
-              zimbraMailAlias=`echo $zimbraMailAlias | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
-              echo "Add Alias for $i with alias $zimbraMailAlias"
-              #delete the forwarder first just in case it was imported before
-              sudo -u zimbra /opt/zimbra/bin/zmprov aaa $i ${zimbraMailAlias}
-              echo "Added Alias for $i with alias $zimbraMailAlias"
+            for pref in IMPORT_PREF; do
+             REGEXPREF="${pref}:"
+             if [[ ${LINE} == *"$REGEXPREF"* ]]; then
+              PREFVALUE=${LINE/$REGEXPREF/}
+              PREFVALUE=`echo $PREFVALUE | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
+              PREFVALUE=`echo "'"$PREFVALUE"'"`
+              echo "Modify Pref for $i ${pref} $PREFVALUE"
+                if [[ $pref == "zimbraPrefMailTrustedSenderList" ]]; then
+                # zimbraPrefMailTrustedSenderList has multiple entries so we have to use +
+                sudo -u zimbra /opt/zimbra/bin/zmprov ma $i +$pref $PREFVALUE
+                else 
+                sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref $PREFVALUE
+                fi
+              echo "Finished Modify Pref for $i ${pref} $PREFVALUE"
              fi
+           done
           done < "${BACKUP_DIR}/settings/${i}_prefs.txt"
+      fi
+    fi
+  done  
+fi 
+
+# Import Legal Intercepts
+echo "Do you want to import legal intercepts settings? (y/n)"
+read RESPONSE_VAR
+if [ ${RESPONSE_VAR} == "y" ]
+  then
+  echo "Start Import of Legal Intercepts..."
+  for i in `cat ${BACKUP_DIR}/emails.txt`
+  do  
+    if [ -e ${BACKUP_DIR}/settings/${i}_intercept.txt ]
+    then
+    FILESIZE=$(stat -c%s "${BACKUP_DIR}/settings/${i}_intercept.txt")
+      if [ ${FILESIZE} -gt 20 ]
+      then
+        while read -r LINE
+          do
+             if [[ ${LINE} == *"zimbraInterceptAddress:"* ]]; then
+              intercept=${LINE/zimbraInterceptAddress:/}
+              intercept=`echo $intercept | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
+              intercept=`echo "'"$intercept"'"`
+              echo "Add Legal Intercept for $i $intercept"
+              sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraInterceptAddress $intercept
+              echo "Finished Adding Legal Intercept for $i $intercept"
+             fi
+           done
+          done < "${BACKUP_DIR}/settings/${i}_intercept.txt"
       fi
     fi
   done  
@@ -546,5 +586,90 @@ fi
 
 # zimbraSharedItem: granteeId:f8822818-3f39-4e27-a453-568e71f4fb09;granteeName:grantee@grantee.com;granteeType:usr;folderId:182586;folderUuid:null;folderPath:/Notebook/XXXXSmith;folderDefaultView:document;rights:r;type:folder
 # This works for Briefcases too:- zmmailbox -z -m email@email.com mfg '/Notebook/Shared' account grantee@grantee.com rwidx
+# Directive modifyFolderGrant(mfg) {folder-path} {account {name}|group {name}|domain {name}|all|public|guest {email} [{password}]|key {email} [{accesskey}] {permissions|none}}
+# zimbraShareLifetime: 0
+# zimbraSharedItem: granteeId:roberto@macau.mo;granteeName:null;granteeType:guest;folderId:7;folderUuid:null;folderPath:/Contacts;folderDefaultView:contact;rights:r;type:folder
 
+# Import Share Settings
+echo "Do you want to import Share settings? (y/n)"
+read RESPONSE_VAR
+if [ ${RESPONSE_VAR} == "y" ]
+  then
+  echo "Start Import of Share Settings (e.g. calendars, briefcases, etc...."
+  for i in `cat ${BACKUP_DIR}/emails.txt`
+  do  
+    if [ -e ${BACKUP_DIR}/settings/${i}_shared.txt ]
+    then
+    FILESIZE=$(stat -c%s "${BACKUP_DIR}/settings/${i}_shared.txt")
+      if [ ${FILESIZE} -gt 25 ]
+      then
+        while read -r LINE
+          do
+            # check if the line contains Share Settins 
+            if [[ ${LINE} == *"zimbraSharedItem:"* ]]; then
+                exploded=$(echo $LINE | tr ";" "\n")
 
+                for SHARELINE in $exploded
+                  do
+                  if [[ ${SHARELINE} == *"zimbraSharedItem:"* ]]; then
+                  echo "New Item"
+                  # Reset all variables
+                  shareType=""
+                  shareGrantee=""
+                  shareFolder=""
+                  shareRights=""
+                  shareGranteeType=""
+                  fi
+
+                  if [[ ${SHARELINE} == *"folderDefaultView:"* ]]; then
+                  shareType=${SHARELINE/folderDefaultView:/}
+                  shareType=`echo $shareType | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                  echo "Type : $shareType"
+                  fi
+
+                  if [[ ${SHARELINE} == *"granteeName:"* ]]; then
+                  shareGrantee=${SHARELINE/granteeName:/}
+                  shareGrantee=`echo $shareGrantee | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                  echo "Grantee : $shareGrantee"
+                  fi
+
+                  if [[ ${SHARELINE} == *"granteeType:"* ]]; then
+                  shareGranteeType=${SHARELINE/ranteeType:/}
+                  shareGranteeType=`echo $shareGranteeType | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                  echo "Grantee Type : $shareGranteeType"
+                  fi
+
+                  if [[ ${SHARELINE} == *"folderPath:"* ]]; then
+                  shareFolder=${SHARELINE/folderPath:/}
+                  shareFolder=`echo $shareFolder | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                  # Add single quotes just in case there are spaces in the folder names 
+                  shareFolder=`echo "'"$shareFolder"'"`
+                  echo "Share Folder : $shareFolder"
+                  fi
+
+                  if [[ ${SHARELINE} == *"rights:"* ]]; then
+                  shareRights=${SHARELINE/rights:/}
+                  shareRights=`echo $shareRights | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                  echo "Share Rights : $shareRights"
+                  fi
+
+                  #If all variables set then we can set in Zimbra
+                  if [[ -n "$shareRights" && -n "$shareFolder" && -n "$shareGrantee" && -n "$shareGranteeType" ]]; then 
+
+                    # don't add guest yet for sharing
+                    if [[ $shareGranteeType == "usr" ]]; then
+                    sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i mfg $shareFolder account $shareGrantee $shareRights
+                    fi
+                  # Reset all variables
+                  shareType=""
+                  shareGrantee=""
+                  shareFolder=""
+                  shareRights=""
+                  shareGranteeType=""  
+                  fi 
+            fi
+          done < "${BACKUP_DIR}/settings/${i}_shared.txt"
+      fi
+    fi
+  done  
+fi
