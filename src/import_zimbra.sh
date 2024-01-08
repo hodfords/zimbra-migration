@@ -293,10 +293,8 @@ read RESPONSE_VAR
 if [ ${RESPONSE_VAR} == "y" ]
   then
   echo "Start Import of Calendars..."  
-  #read -s -p "Please Enter Admin Password for the New Server: " ADMIN_PASSWORD
   for i in `cat ${BACKUP_DIR}/emails.txt`
   do  
-  #signatures
     if [ -d ${BACKUP_DIR}/calendar/$i ]
     then
         for calendar in ${BACKUP_DIR}/calendar/$i/*.tgz
@@ -319,10 +317,8 @@ read RESPONSE_VAR
 if [ ${RESPONSE_VAR} == "y" ]
   then
   echo "Start Import of Briefcase..."  
-  #read -s -p "Please Enter Admin Password for the New Server: " ADMIN_PASSWORD
   for i in `cat ${BACKUP_DIR}/emails.txt`
   do  
-  #signatures
     if [ -d ${BACKUP_DIR}/briefcase/$i ]
     then
         for briefcase in ${BACKUP_DIR}/briefcase/$i/*.tgz
@@ -391,7 +387,6 @@ if [ ${RESPONSE_VAR} == "y" ]
   echo "Start Import of Aliases..."  
   for i in `cat ${BACKUP_DIR}/emails.txt`
   do  
-    #Import hidden forwarders
     if [ -e ${BACKUP_DIR}/alias/${i}.txt ]
     then
     FILESIZE=$(stat -c%s "${BACKUP_DIR}/alias/${i}.txt")
@@ -403,7 +398,6 @@ if [ ${RESPONSE_VAR} == "y" ]
                 zimbraMailAlias=${LINE/zimbraMailAlias:/}
                 zimbraMailAlias=`echo $zimbraMailAlias | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
                 echo "Add Alias for $i with alias $zimbraMailAlias"
-                #delete the forwarder first just in case it was imported before
                 sudo -u zimbra /opt/zimbra/bin/zmprov aaa $i ${zimbraMailAlias}
                 echo "Added Alias for $i with alias $zimbraMailAlias"
                fi
@@ -474,7 +468,7 @@ if [ ${RESPONSE_VAR} == "y" ]
     # before
     # imapsync --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" 
     # imapsync --addheader --nosyncacls --syncinternaldates --nofoldersizes --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 ""   
-      # Need to divide up - if mailboxes are really large - read RESPONSE_VAR
+    # Need to divide up - if mailboxes are really large - read RESPONSE_VAR
 
     imapsync --addheader --errorsmax 100000 --nosyncacls --subscribe --syncinternaldates --nofoldersizes --skipsize --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" --regexflag "s/:FLAG/_FLAG/g" --exclude "Chats"
     echo "Finished Migration of emails for $i"
@@ -568,7 +562,6 @@ if [ ${RESPONSE_VAR} == "y" ]
               sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraInterceptAddress $intercept
               echo "Finished Adding Legal Intercept for $i $intercept"
              fi
-           done
           done < "${BACKUP_DIR}/settings/${i}_intercept.txt"
       fi
     fi
@@ -607,12 +600,19 @@ if [ ${RESPONSE_VAR} == "y" ]
           do
             # check if the line contains Share Settins 
             if [[ ${LINE} == *"zimbraSharedItem:"* ]]; then
-                exploded=$(echo $LINE | tr ";" "\n")
+                #exploded=$(echo $LINE | tr ";" "\n")
+                exploded=`sed 's/;/\n/g' <<< "${LINE}"`
 
-                for SHARELINE in $exploded
-                  do
+                #for i in $(echo ${!exploded[@]});
+                while read -r SHARELINE
+                do 
+                #SHARELINE=${exploded[$i]}
+                #echo "SHARE LINE : $SHARELINE"
+                
+                #for SHARELINE in $exploded
+                #  do
                   if [[ ${SHARELINE} == *"zimbraSharedItem:"* ]]; then
-                  echo "New Item"
+                  echo "New Share Item"
                   # Reset all variables
                   shareType=""
                   shareGrantee=""
@@ -624,33 +624,34 @@ if [ ${RESPONSE_VAR} == "y" ]
                   if [[ ${SHARELINE} == *"folderDefaultView:"* ]]; then
                   shareType=${SHARELINE/folderDefaultView:/}
                   shareType=`echo $shareType | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-                  echo "Type : $shareType"
+                  #echo "Type : $shareType"
                   fi
 
                   if [[ ${SHARELINE} == *"granteeName:"* ]]; then
                   shareGrantee=${SHARELINE/granteeName:/}
                   shareGrantee=`echo $shareGrantee | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-                  echo "Grantee : $shareGrantee"
+                  #echo "Grantee : $shareGrantee"
                   fi
 
                   if [[ ${SHARELINE} == *"granteeType:"* ]]; then
-                  shareGranteeType=${SHARELINE/ranteeType:/}
+                  shareGranteeType=${SHARELINE/granteeType:/}
                   shareGranteeType=`echo $shareGranteeType | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-                  echo "Grantee Type : $shareGranteeType"
+                  #echo "Grantee Type : $shareGranteeType"
                   fi
 
                   if [[ ${SHARELINE} == *"folderPath:"* ]]; then
-                  shareFolder=${SHARELINE/folderPath:/}
-                  shareFolder=`echo $shareFolder | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                  #shareFolder=${SHARELINE/folderPath:/}
+                  shareFolder=`echo ${SHARELINE} | cut -d ":" -f2`
+                  #shareFolder=`echo $shareFolder | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
                   # Add single quotes just in case there are spaces in the folder names 
                   shareFolder=`echo "'"$shareFolder"'"`
-                  echo "Share Folder : $shareFolder"
+                  #echo "Share Folder : $shareFolder"
                   fi
 
                   if [[ ${SHARELINE} == *"rights:"* ]]; then
                   shareRights=${SHARELINE/rights:/}
                   shareRights=`echo $shareRights | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-                  echo "Share Rights : $shareRights"
+                  #echo "Share Rights : $shareRights"
                   fi
 
                   #If all variables set then we can set in Zimbra
@@ -658,7 +659,10 @@ if [ ${RESPONSE_VAR} == "y" ]
 
                     # don't add guest yet for sharing
                     if [[ $shareGranteeType == "usr" ]]; then
+                    echo "Execute"
+                    echo "sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i mfg $shareFolder account $shareGrantee $shareRights"
                     sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i mfg $shareFolder account $shareGrantee $shareRights
+                    echo "Executed"
                     fi
                   # Reset all variables
                   shareType=""
@@ -667,6 +671,7 @@ if [ ${RESPONSE_VAR} == "y" ]
                   shareRights=""
                   shareGranteeType=""  
                   fi 
+                done <<< "$exploded"
             fi
           done < "${BACKUP_DIR}/settings/${i}_shared.txt"
       fi
