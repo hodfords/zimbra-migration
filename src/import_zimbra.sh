@@ -644,7 +644,7 @@ if [ ${RESPONSE_VAR} == "y" ]
                   shareFolder=`echo ${SHARELINE} | cut -d ":" -f2`
                   #shareFolder=`echo $shareFolder | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
                   # Add single quotes just in case there are spaces in the folder names 
-                  shareFolder=`echo "'"$shareFolder"'"`
+                  # shareFolder=`echo "'"$shareFolder"'"`
                   #echo "Share Folder : $shareFolder"
                   fi
 
@@ -661,7 +661,7 @@ if [ ${RESPONSE_VAR} == "y" ]
                     if [[ $shareGranteeType == "usr" ]]; then
                     echo "Execute"
                     echo "sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i mfg $shareFolder account $shareGrantee $shareRights"
-                    sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i mfg $shareFolder account $shareGrantee $shareRights
+                    sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i mfg "${shareFolder}" account "$shareGrantee" "$shareRights"
                     echo "Executed"
                     fi
                   # Reset all variables
