@@ -66,7 +66,7 @@ zmlocalconfig --reload
 ```
 - For very large mailboxes (in terms of the number of messages) if you encounter imapsync returning the "Killed" response and other error messages like "uninitiliazed value $h1_msgs[0] in hash slice at /usr/bin/imapsync lin 2558" or something like that then it means your server has run out of RAM during the migration process; this usually happens during the "Parse Header" stage which takes a long time. I tried many different settings on imapsync and found the only way to get around this issue is to increase th RAM on the server. For reference, I had 16Gb of RAM and ran into this problem; after increasing to 32Gb the migration of imapsync went through successfully. I had one mailbox with about 1 million messages; not big messsages just notifications where each email is around 1Kb.  
 
-#Done Log
+# Done Log
 - Added the export and re-import of different calendars, briefcases and contacts
 - Added the import of shared calendars, briefcases
 
