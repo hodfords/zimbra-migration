@@ -1,4 +1,4 @@
-# Copyright 2024 Hodfords.com Ltd (https://www.hodfords.com/)
+![image](https://github.com/hodfords/zimbra-migration/assets/85724916/b8aa2143-00ca-456e-95d7-ad07ba10ea7b)# Copyright 2024 Hodfords.com Ltd (https://www.hodfords.com/)
 Released under GNU General Public License v3 (GPL-3)
 
 This script is free for anyone to use and can be distributed freely 
@@ -76,6 +76,14 @@ zmlocalconfig --reload
 - Ubuntu to Centos
 - Red Hat linux to Ubuntu
 - Red Hat Linux to Centos
+
+#Legacy Email Clients 
+For some email clients with legacy email clients such as Outlook 2007, Outlook 2016 that still support clear email password authentication you need to run these commands. This legacy support operation is not recommended as it poses security issues to the system but there are users running really old email clients then these will help. 
+```
+su zimbra
+zmprov mcf zimbraImapCleartextLoginEnabled TRUE
+zmprov mcf zimbraPop3CleartextLoginEnabled TRUE
+```
 
 # Done Log
 - Added the export and re-import of different calendars, briefcases and contacts
