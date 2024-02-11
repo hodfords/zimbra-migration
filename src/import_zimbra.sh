@@ -20,7 +20,7 @@
 ## Remember to make the script executable by running: chmod 755 /opt/scripts/import_zimbra.sh
 BACKUP_DIR="/opt/zmbackup"
 #Preferences that will be imported - add or delete as you see fit 
-IMPORT_PREF=("zimbraPrefLocale" "zimbraPrefConversationOrder" "zimbraPrefDefaultPrintFontSize" "zimbraPrefDisplayExternalImages" "zimbraPrefFolderTreeOpen" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontFamily" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefComposeInNewWindow" "zimbraPrefGroupMailBy" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontFamily" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefFromAddress" "zimbraPrefFromDisplay" "zimbraPrefGalAutoCompleteEnabled" "zimbraPrefComposeFormat" "zimbraPrefCalendarViewTimeInterval" "zimbraPrefCalendarReminderDuration1" "zimbraPrefCalendarInitialView" "zimbraPrefFolderTreeOpen" "zimbraPrefMailTrustedSenderList" "zimbraPrefMandatorySpellCheckEnabled" "zimbraPrefOutOfOfficeReplyEnabled" "zimbraPrefTimeZoneId" "zimbraPrefSkin" "zimbraPrefFont" "zimbraPrefClientType" "zimbraPrefConvReadingPaneLocation" )
+IMPORT_PREF=("zimbraPrefLocale" "zimbraPrefConversationOrder" "zimbraPrefDefaultPrintFontSize" "zimbraPrefDisplayExternalImages" "zimbraPrefFolderTreeOpen" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontFamily" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefComposeInNewWindow" "zimbraPrefGroupMailBy" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefFromAddress" "zimbraPrefFromDisplay" "zimbraPrefGalAutoCompleteEnabled" "zimbraPrefComposeFormat" "zimbraPrefCalendarViewTimeInterval" "zimbraPrefCalendarReminderDuration1" "zimbraPrefCalendarInitialView" "zimbraPrefFolderTreeOpen" "zimbraPrefMailTrustedSenderList" "zimbraPrefMandatorySpellCheckEnabled" "zimbraPrefOutOfOfficeReplyEnabled" "zimbraPrefTimeZoneId" "zimbraPrefSkin" "zimbraPrefFont" "zimbraPrefClientType" "zimbraPrefConvReadingPaneLocation" )
 
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
 sleep 1
@@ -502,44 +502,49 @@ if [ ${RESPONSE_VAR} == "y" ]
   done  
 fi 
 
-# Import Mailbox Preferences 
-echo "Do you want to import preferences? (y/n)"
-read RESPONSE_VAR
-if [ ${RESPONSE_VAR} == "y" ]
-  then
-  echo "Start Import of User Preferences..."
-  for i in `cat ${BACKUP_DIR}/emails.txt`
-  do  
-    if [ -e ${BACKUP_DIR}/settings/${i}_prefs.txt ]
+  # Import Mailbox Preferences 
+  echo "Do you want to import preferences? (y/n)"
+  read RESPONSE_VAR
+  if [ ${RESPONSE_VAR} == "y" ]
     then
-    FILESIZE=$(stat -c%s "${BACKUP_DIR}/settings/${i}_prefs.txt")
-      if [ ${FILESIZE} -gt 20 ]
+    echo "Start Import of User Preferences..."
+    for i in `cat ${BACKUP_DIR}/emails.txt`
+    do  
+      if [ -e ${BACKUP_DIR}/settings/${i}_prefs.txt ]
       then
-        while read -r LINE
-          do
-            for pref in "${IMPORT_PREF[@]}"; do
-             REGEXPREF="${pref}:"
-             if [[ ${LINE} == *"$REGEXPREF"* ]]; then
-              PREFVALUE=${LINE/$REGEXPREF/}
-              PREFVALUE=`echo $PREFVALUE | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
-              PREFVALUE=`echo "\""$PREFVALUE"\""`
-              echo "Modify Pref for $i ${pref} $PREFVALUE"
-                if [[ $pref == "zimbraPrefMailTrustedSenderList" ]]; then
-                # zimbraPrefMailTrustedSenderList has multiple entries so we have to use +
-                sudo -u zimbra /opt/zimbra/bin/zmprov ma $i +$pref $PREFVALUE
-                echo "Execute :  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i +$pref $PREFVALUE"              
-                else 
-                sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref $PREFVALUE
-                echo "Execute :  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref $PREFVALUE"
-                fi
-              echo "Finished Modify Pref for $i ${pref} $PREFVALUE"
-             fi
-           done
-          done < "${BACKUP_DIR}/settings/${i}_prefs.txt"
+      FILESIZE=$(stat -c%s "${BACKUP_DIR}/settings/${i}_prefs.txt")
+        if [ ${FILESIZE} -gt 20 ]
+        then
+          while read -r LINE
+            do
+              for pref in "${IMPORT_PREF[@]}"
+               do 
+               REGEXPREF="${pref}:"
+               if [[ ${LINE} == *"$REGEXPREF"* ]]; then
+                PREFVALUE=${LINE/$REGEXPREF/}
+                PREFVALUE=`echo $PREFVALUE | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+                echo "Modify Pref for $i ${pref} $PREFVALUE"
+                  if [[ $pref == "zimbraPrefMailTrustedSenderList" ]]
+                  then
+                  # zimbraPrefMailTrustedSenderList has multiple entries so we have to use +
+                  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i +$pref $PREFVALUE
+                  echo "Execute :  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i +$pref $PREFVALUE"  
+                  elif [[ $pref == "zimbraPrefHtmlEditorDefaultFontFamily" ]]
+                    then
+                   sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref \""$PREFVALUE"\" 
+                   echo "Execute :  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref $PREFVALUE"          
+                  else 
+                  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref $PREFVALUE
+                  echo "Execute :  sudo -u zimbra /opt/zimbra/bin/zmprov ma $i $pref $PREFVALUE"
+                  fi
+                echo "Finished Modify Pref for $i ${pref} $PREFVALUE"
+               fi
+             done
+            done < "${BACKUP_DIR}/settings/${i}_prefs.txt"
+        fi
       fi
-    fi
-  done  
-fi 
+    done  
+  fi 
 
 # Import Legal Intercepts
 echo "Do you want to import legal intercepts settings? (y/n)"
