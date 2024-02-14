@@ -1,4 +1,4 @@
-![image](https://github.com/hodfords/zimbra-migration/assets/85724916/b8aa2143-00ca-456e-95d7-ad07ba10ea7b)# Copyright 2024 Hodfords.com Ltd (https://www.hodfords.com/)
+# Copyright 2024 Hodfords.com Ltd (https://www.hodfords.com/)
 Released under GNU General Public License v3 (GPL-3)
 
 This script is free for anyone to use and can be distributed freely 
