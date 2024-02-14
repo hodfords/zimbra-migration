@@ -249,7 +249,7 @@ ${LINE}"
     if [ -e ${BACKUP_DIR}/autoresponders/${i}_reply.txt ]
     then
     FILESIZE=$(stat -c%s "${BACKUP_DIR}/autoresponders/${i}_reply.txt")
-        if [ ${FILESIZE} -ne 0 ]
+        if [ ${FILESIZE} -gt 30 ]
         then
         echo "Import Out Of Office for $i"
         tail -n +2 ${BACKUP_DIR}/autoresponders/${i}_reply.txt > /tmp/temp.txt
