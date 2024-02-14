@@ -114,12 +114,18 @@ else
     exit 0
 fi
 
-echo "Start Import of Domains..."
-for i in `cat ${BACKUP_DIR}/domains.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov cd $i zimbraAuthMech zimbra ;echo $i ;done
-echo "Finished Importing Domains..."
-echo "Current Domain List:"
-sudo -u zimbra /opt/zimbra/bin/zmprov gad
+echo "Do you want to import domains (y/n)? - you must domains setup before the rest of the import process can work."
 sleep 1
+read RESPONSE_VAR
+if [ ${RESPONSE_VAR} == "y" ]
+  then
+  echo "Start Import of Domains..."
+  for i in `cat ${BACKUP_DIR}/domains.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov cd $i zimbraAuthMech zimbra ;echo $i ;done
+  echo "Finished Importing Domains..."
+  echo "Current Domain List:"
+  sudo -u zimbra /opt/zimbra/bin/zmprov gad
+  sleep 1
+fi
 
 echo "Do you want to import users (y/n)?"
 sleep 1
@@ -232,20 +238,76 @@ ${LINE}"
     fi
 
     #Autoresponders
+    #zimbraFeatureOutOfOfficeReplyEnabled: TRUE
+    #zimbraPrefOutOfOfficeCacheDuration: 7d
+    #zimbraPrefOutOfOfficeFromDate: 20240213170000Z
+    #zimbraPrefOutOfOfficeReply: Dear sirs,
+    #zimbraPrefOutOfOfficeReplyEnabled: TRUE
+    #zimbraPrefOutOfOfficeStatusAlertOnLogin: TRUE
+    #zimbraPrefOutOfOfficeUntilDate: 20240217165959Z
+    
+    if [ -e ${BACKUP_DIR}/autoresponders/${i}_reply.txt ]
+    then
+    FILESIZE=$(stat -c%s "${BACKUP_DIR}/autoresponders/${i}_reply.txt")
+        if [ ${FILESIZE} -ne 0 ]
+        then
+        echo "Import Out Of Office for $i"
+        tail -n +2 ${BACKUP_DIR}/autoresponders/${i}_reply.txt > /tmp/temp.txt
+        sed '/zimbraPrefOutOfOfficeReply: /d' /tmp/temp.txt > /tmp/corrected.txt
+        AUTOREPLY1=$(</tmp/corrected.txt)
+        sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReply \""$AUTOREPLY1"\"
+        echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReply $AUTOREPLY1"  
+        fi
+    fi
+
     if [ -e ${BACKUP_DIR}/autoresponders/$i.txt ]
     then
       FILESIZE=$(stat -c%s "${BACKUP_DIR}/autoresponders/$i.txt")
         if [ ${FILESIZE} -ne 0 ]
         then
-        echo "Import Out Of Office for $i"
-        zimbraPrefOutOfOfficeReply=$(grep zimbraPrefOutOfOfficeReply: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
-        zimbraPrefOutOfOfficeReply=`echo $zimbraPrefOutOfOfficeReply | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-        zimbraPrefOutOfOfficeReply=${zimbraPrefOutOfOfficeReply//\"/\\\"}
+     
+        echo "Import Out Of Office Preferences for $i"
         zimbraPrefOutOfOfficeReplyEnabled=$(grep zimbraPrefOutOfOfficeReplyEnabled: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
         zimbraPrefOutOfOfficeReplyEnabled=`echo $zimbraPrefOutOfOfficeReplyEnabled | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
-        sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReply "$zimbraPrefOutOfOfficeReply"
         sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReplyEnabled "$zimbraPrefOutOfOfficeReplyEnabled"
-        echo "Imported Out Of Office for $i"
+        echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReplyEnabled $zimbraPrefOutOfOfficeReplyEnabled"
+
+        zimbraPrefOutOfOfficeFromDate=$(grep zimbraPrefOutOfOfficeFromDate: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
+        zimbraPrefOutOfOfficeFromDate=`echo $zimbraPrefOutOfOfficeFromDate | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+          if [ -n "$zimbraPrefOutOfOfficeFromDate" ]
+          then
+          sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeFromDate "$zimbraPrefOutOfOfficeFromDate"
+          echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeFromDate $zimbraPrefOutOfOfficeFromDate"
+          fi
+
+        zimbraPrefOutOfOfficeCacheDuration=$(grep zimbraPrefOutOfOfficeCacheDuration: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
+        zimbraPrefOutOfOfficeCacheDuration=`echo $zimbraPrefOutOfOfficeCacheDuration | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+        
+          if [ -n "$zimbraPrefOutOfOfficeCacheDuration" ]
+          then
+          sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeCacheDuration "$zimbraPrefOutOfOfficeCacheDuration"
+          echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeCacheDuration $zimbraPrefOutOfOfficeCacheDuration"
+          fi
+
+        zimbraPrefOutOfOfficeUntilDate=$(grep zimbraPrefOutOfOfficeUntilDate: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
+        zimbraPrefOutOfOfficeUntilDate=`echo $zimbraPrefOutOfOfficeUntilDate | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+        
+          if [ -n "$zimbraPrefOutOfOfficeUntilDate" ]
+          then
+          sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeUntilDate "$zimbraPrefOutOfOfficeUntilDate"
+          echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeUntilDate $zimbraPrefOutOfOfficeUntilDate"
+          fi
+
+        zimbraPrefOutOfOfficeStatusAlertOnLogin=$(grep zimbraPrefOutOfOfficeStatusAlertOnLogin: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
+        zimbraPrefOutOfOfficeStatusAlertOnLogin=`echo $zimbraPrefOutOfOfficeStatusAlertOnLogin | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+        
+          if [ -n "$zimbraPrefOutOfOfficeStatusAlertOnLogin" ]
+          then
+          sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeStatusAlertOnLogin "$zimbraPrefOutOfOfficeStatusAlertOnLogin"
+          echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeStatusAlertOnLogin $zimbraPrefOutOfOfficeStatusAlertOnLogin"
+          fi
+
+        echo "Imported Out Of Office Preferences for $i"
         fi
     fi
 
