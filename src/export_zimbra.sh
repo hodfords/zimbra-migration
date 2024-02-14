@@ -218,7 +218,7 @@ else
 fi
 
 echo "Exporting Auto-Responders..."
-for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep PrefOutOfOfficeRepl > ${BACKUP_DIR}/autoresponders/$i.txt ; done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep Office > ${BACKUP_DIR}/autoresponders/$i.txt; sudo -u zimbra /opt/zimbra/bin/zmprov ga $i zimbraPrefOutOfOfficeReply > ${BACKUP_DIR}/autoresponders/$i_reply.txt; done
 echo "Finished Exporting Auto-Responders..."
 
 ## Export Distribution Lists
@@ -298,7 +298,8 @@ else
 fi
 
 echo "Exporting Global Settings..."
-sudo -u zimbra /opt/zimbra/bin/zmprov gs `zmhostname` ${BACKUP_DIR}/global_settings.txt
+HOSTNAME=`sudo -u zimbra  /opt/zimbra/bin/zmhostname`
+sudo -u zimbra /opt/zimbra/bin/zmprov gs ${HOSTNAME} > ${BACKUP_DIR}/global_settings.txt
 chown -R zimbra:zimbra ${BACKUP_DIR}/global_settings.txt
 echo "Exported Global Settings"
 
@@ -437,3 +438,4 @@ fi
 echo "Export Catch-alls..."
 for i in `cat ${BACKUP_DIR}/domains.txt `; do sudo -u zimbra /opt/zimbra/bin/zmprov gd $i | grep CatchAll > ${BACKUP_DIR}/catchall/$i.txt ; done
 echo "Exported Catch-alls..."
+
