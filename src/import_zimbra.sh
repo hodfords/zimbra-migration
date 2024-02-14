@@ -269,8 +269,19 @@ ${LINE}"
         echo "Import Out Of Office Preferences for $i"
         zimbraPrefOutOfOfficeReplyEnabled=$(grep zimbraPrefOutOfOfficeReplyEnabled: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
         zimbraPrefOutOfOfficeReplyEnabled=`echo $zimbraPrefOutOfOfficeReplyEnabled | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+        if [ -n "$zimbraPrefOutOfOfficeReplyEnabled" ]
+          then
         sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReplyEnabled "$zimbraPrefOutOfOfficeReplyEnabled"
         echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReplyEnabled $zimbraPrefOutOfOfficeReplyEnabled"
+       fi
+
+       zimbraFeatureOutOfOfficeReplyEnabled=$(grep zimbraFeatureOutOfOfficeReplyEnabled: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
+        zimbraFeatureOutOfOfficeReplyEnabled=`echo $zimbraFeatureOutOfOfficeReplyEnabled | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
+        if [ -n "$zimbraFeatureOutOfOfficeReplyEnabled" ]
+          then
+        sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraFeatureOutOfOfficeReplyEnabled "$zimbraFeatureOutOfOfficeReplyEnabled"
+        echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraFeatureOutOfOfficeReplyEnabled $zimbraFeatureOutOfOfficeReplyEnabled"
+       fi
 
         zimbraPrefOutOfOfficeFromDate=$(grep zimbraPrefOutOfOfficeFromDate: ${BACKUP_DIR}/autoresponders/$i.txt | cut -d ":" -f2)
         zimbraPrefOutOfOfficeFromDate=`echo $zimbraPrefOutOfOfficeFromDate | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`
