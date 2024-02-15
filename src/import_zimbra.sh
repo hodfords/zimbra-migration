@@ -249,13 +249,13 @@ ${LINE}"
     if [ -e ${BACKUP_DIR}/autoresponders/${i}_reply.txt ]
     then
     FILESIZE=$(stat -c%s "${BACKUP_DIR}/autoresponders/${i}_reply.txt")
-        if [ ${FILESIZE} -gt 30 ]
+        if [ ${FILESIZE} -gt 38 ]
         then
         echo "Import Out Of Office for $i"
         tail -n +2 ${BACKUP_DIR}/autoresponders/${i}_reply.txt > /tmp/temp.txt
         sed '/zimbraPrefOutOfOfficeReply: /d' /tmp/temp.txt > /tmp/corrected.txt
         AUTOREPLY1=$(</tmp/corrected.txt)
-        sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReply \""$AUTOREPLY1"\"
+        sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReply "$AUTOREPLY1"
         echo "run : sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraPrefOutOfOfficeReply $AUTOREPLY1"  
         fi
     fi
@@ -637,7 +637,8 @@ if [ ${RESPONSE_VAR} == "y" ]
              if [[ ${LINE} == *"zimbraInterceptAddress:"* ]]; then
               intercept=${LINE/zimbraInterceptAddress:/}
               intercept=`echo $intercept | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
-              intercept=`echo "'"$intercept"'"`
+              # no need to quotes 
+              #intercept=`echo "'"$intercept"'"`
               echo "Add Legal Intercept for $i $intercept"
               sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraInterceptAddress $intercept
               echo "Finished Adding Legal Intercept for $i $intercept"
