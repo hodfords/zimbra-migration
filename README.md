@@ -73,7 +73,7 @@ su zimbra
 export LC_ALL="en_US.UTF-8"
 ```
 
-- Need to add the ability to export and import catchall email addresses for domains
+- Need to add the ability to export and import catchall email addresses for domains (e.g. zmprov ma catchall@newdomain.com zimbraMailCatchAllAddress @domainc.com)
 
 #Keywords
 - Cross platform migration
