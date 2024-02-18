@@ -21,6 +21,8 @@
 BACKUP_DIR="/opt/zmbackup"
 REGEX_FOLDER_TOP="\/[^\/]+"
 
+sudo -u zimbra bash -c 'export LC_ALL="en_US.UTF-8"'
+
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
 sleep 1
 
@@ -314,6 +316,10 @@ for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmai
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraPref > ${BACKUP_DIR}/settings/${i}_prefs.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraShare > ${BACKUP_DIR}/settings/${i}_shared.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraIntercept > ${BACKUP_DIR}/settings/${i}_intercept.txt ; done
+
+#catchall information is only available on the individual email
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i zimbraMailCatchAllAddress > ${BACKUP_DIR}/settings/${i}_catchall.txt ; done
+
 echo "Exported individual settings..."
 
 ## Export Briefcase
@@ -443,4 +449,3 @@ fi
 echo "Export Catch-alls..."
 for i in `cat ${BACKUP_DIR}/domains.txt `; do sudo -u zimbra /opt/zimbra/bin/zmprov gd $i | grep CatchAll > ${BACKUP_DIR}/catchall/${i}.txt ; done
 echo "Exported Catch-alls..."
-
