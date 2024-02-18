@@ -73,6 +73,8 @@ su zimbra
 export LC_ALL="en_US.UTF-8"
 ```
 
+- Need to add the ability to export and import catchall email addresses for domains
+
 #Keywords
 - Cross platform migration
 - Centos 6 to Centos 7
