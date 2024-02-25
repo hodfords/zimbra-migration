@@ -542,7 +542,7 @@ if [ ${RESPONSE_VAR} == "y" ]
     echo "Start Migration of emails for $i"
     echo "--------------------------------"
     echo ""
-    sleep1 
+    sleep 1 
     # before
     # imapsync --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" 
     # imapsync --addheader --nosyncacls --syncinternaldates --nofoldersizes --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 ""   
