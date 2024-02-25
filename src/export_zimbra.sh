@@ -22,6 +22,7 @@ BACKUP_DIR="/opt/zmbackup"
 REGEX_FOLDER_TOP="\/[^\/]+"
 
 sudo -u zimbra bash -c 'export LC_ALL="en_US.UTF-8"'
+export LC_ALL="en_US.UTF-8"
 
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
 sleep 1
@@ -449,3 +450,4 @@ fi
 echo "Export Catch-alls..."
 for i in `cat ${BACKUP_DIR}/domains.txt `; do sudo -u zimbra /opt/zimbra/bin/zmprov gd $i | grep CatchAll > ${BACKUP_DIR}/catchall/${i}.txt ; done
 echo "Exported Catch-alls..."
+
