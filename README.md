@@ -68,6 +68,8 @@ zmlocalconfig --reload
 
 - If you have "Out of Office" Replies and Signatures in duo-byte characters like Chinese, Japanese, etc. then you need to run the following commands otherwise the export will not work properly.
 
+- The HTML signature import part does not work; when exporting using zmprov - &nbsp; is not exported and a lot of the other HTML code will become &quot; for instance and re-importing the &nbsp; is problematic.... We've tried using the program "recode" to get around it but still there are problems.
+
 ```
 su zimbra
 export LC_ALL="en_US.UTF-8"
