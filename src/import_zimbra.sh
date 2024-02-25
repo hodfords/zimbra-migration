@@ -22,6 +22,9 @@ BACKUP_DIR="/opt/zmbackup"
 #Preferences that will be imported - add or delete as you see fit 
 IMPORT_PREF=("zimbraPrefLocale" "zimbraPrefConversationOrder" "zimbraPrefDefaultPrintFontSize" "zimbraPrefDisplayExternalImages" "zimbraPrefFolderTreeOpen" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontFamily" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefComposeInNewWindow" "zimbraPrefGroupMailBy" "zimbraPrefHtmlEditorDefaultFontColor" "zimbraPrefHtmlEditorDefaultFontSize" "zimbraPrefFromAddress" "zimbraPrefFromDisplay" "zimbraPrefGalAutoCompleteEnabled" "zimbraPrefComposeFormat" "zimbraPrefCalendarViewTimeInterval" "zimbraPrefCalendarReminderDuration1" "zimbraPrefCalendarInitialView" "zimbraPrefFolderTreeOpen" "zimbraPrefMailTrustedSenderList" "zimbraPrefMandatorySpellCheckEnabled" "zimbraPrefOutOfOfficeReplyEnabled" "zimbraPrefTimeZoneId" "zimbraPrefSkin" "zimbraPrefFont" "zimbraPrefClientType" "zimbraPrefConvReadingPaneLocation" )
 
+sudo -u zimbra bash -c 'export LC_ALL="en_US.UTF-8"'
+export LC_ALL="en_US.UTF-8"
+
 echo "This script should be run as root.... Maybe exit now with Ctrl-c if not"
 sleep 1
 
@@ -322,6 +325,8 @@ ${LINE}"
         fi
     fi
 
+    sudo -u zimbra bash -c 'export LC_ALL="en_US.UTF-8"'
+    export LC_ALL="en_US.UTF-8"
     #Filters
     if [ -e ${BACKUP_DIR}/filters/$i.txt ]
     then
@@ -542,7 +547,7 @@ if [ ${RESPONSE_VAR} == "y" ]
     # imapsync --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" 
     # imapsync --addheader --nosyncacls --syncinternaldates --nofoldersizes --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 ""   
     # Need to divide up - if mailboxes are really large - read RESPONSE_VAR
-
+    export LC_ALL="en_US.UTF-8"
     imapsync --addheader --errorsmax 100000 --nosyncacls --subscribe --syncinternaldates --nofoldersizes --skipsize --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" --regexflag "s/:FLAG/_FLAG/g" --exclude "Chats"
     echo "Finished Migration of emails for $i"
     done  
@@ -639,6 +644,7 @@ if [ ${RESPONSE_VAR} == "y" ]
               intercept=`echo $intercept | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
               # no need to quotes 
               #intercept=`echo "'"$intercept"'"`
+
               echo "Add Legal Intercept for $i $intercept"
               sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraInterceptAddress $intercept
               echo "Finished Adding Legal Intercept for $i $intercept"
