@@ -96,6 +96,11 @@ then
 echo "Exporting users..."
 sudo -u zimbra /opt/zimbra/bin/zmprov -l gaa > ${BACKUP_DIR}/emails.txt
 chown -R zimbra:zimbra ${BACKUP_DIR}/emails.txt
+
+echo "Exporting all admin accounts..."
+sudo -u zimbra /opt/zimbra/bin/zmprov GetAllAdminAccounts > ${BACKUP_DIR}/admins.txt
+chown -R zimbra:zimbra ${BACKUP_DIR}/admins.txt
+
 else 
 echo "Exporting only users for ${DOMAIN}"
 sudo -u zimbra /opt/zimbra/bin/zmprov -l gaa ${DOMAIN} > ${BACKUP_DIR}/emails.txt
