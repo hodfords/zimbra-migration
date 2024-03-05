@@ -317,6 +317,7 @@ for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmai
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraPref > ${BACKUP_DIR}/settings/${i}_prefs.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraShare > ${BACKUP_DIR}/settings/${i}_shared.txt ; done
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep zimbraIntercept > ${BACKUP_DIR}/settings/${i}_intercept.txt ; done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i | grep "zimbraAccountStatus:" > ${BACKUP_DIR}/settings/${i}_status.txt ; done
 
 #catchall information is only available on the individual email
 for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmprov ga $i zimbraMailCatchAllAddress > ${BACKUP_DIR}/settings/${i}_catchall.txt ; done
