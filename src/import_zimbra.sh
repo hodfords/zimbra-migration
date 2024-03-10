@@ -765,3 +765,33 @@ if [ ${RESPONSE_VAR} == "y" ]
     fi
   done  
 fi
+
+# Import Legal Intercepts
+echo "Do you want to import each users' status? (y/n)"
+read RESPONSE_VAR
+if [ ${RESPONSE_VAR} == "y" ]
+  then
+  echo "Start Import of user status..."
+  for i in `cat ${BACKUP_DIR}/emails.txt`
+  do  
+    if [ -e ${BACKUP_DIR}/settings/${i}_status.txt ]
+    then
+    FILESIZE=$(stat -c%s "${BACKUP_DIR}/settings/${i}_status.txt")
+      if [ ${FILESIZE} -gt 10 ]
+      then
+        while read -r LINE
+          do
+             if [[ ${LINE} == *"zimbraAccountStatus:"* ]]; then
+              status=${LINE/zimbraAccountStatus:/}
+              status=`echo $status | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`  
+             
+              echo "Update Status for $i to $status"
+              sudo -u zimbra /opt/zimbra/bin/zmprov ma $i zimbraAccountStatus $status
+              echo "Finished Updating Status for $i to $status"
+             fi
+          done < "${BACKUP_DIR}/settings/${i}_status.txt"
+      fi
+    fi
+  done  
+fi
+
