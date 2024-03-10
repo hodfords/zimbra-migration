@@ -97,6 +97,9 @@ zmprov mcf zimbraPop3CleartextLoginEnabled TRUE
 ```
 
 # Done Log
+- Added the ability to update the status of each account
+- Added the ability import legal intercept settings
+- Added the ability to import preferences for each user
 - Added the export and re-import of different calendars, briefcases and contacts
 - Added the import of shared calendars, briefcases
 
