@@ -12,7 +12,11 @@ We just added the export and import of shared settings; so that shared calendars
 
 So this script allows you to migrate from Centos 6 to Centos 7 or Centos 8; or from Centos to Ubuntu and between different versions of Zimbra. 
 
-There are 2 scripts; one for exporting all of the data which needs to be run on the server that you are migrating from and one for importing the data into the server that you are migrating to. The script is written in bash.
+There is an export script for exporting all of the data (export_zimbra.sh) which needs to be run on the server that you are migrating from and one for importing the data into the server that you are migrating to. The script is written in bash.
+
+There is an import script for importing into another Zimbra instance (import_zimbra.sh) which should be run on the new Zimbra server that you will be migrating to. 
+
+There is an import script for importing into a Carbonio server (import_carbonio.sh) which should be run on the new Carbonio server that you will be migrating to. 
 
 # How to Use
 We recommend that the 2 scripts be put in /opt/scripts/. Before they can be run they need to be executable. export_zimbra.sh should be run on the server you are migrating from and will output all of the data to /opt/zmbackup/. Important to note that emails will not be exported as it would occupy too much storage. Instead emails are migrated using imapsync. 
@@ -31,13 +35,23 @@ chmod 755 export_zimbra.sh
 ./export_zimbra.sh
 ```
 
-Once all the data has finished exporting - you can import on the new server - run as root
+Once all the data has finished exporting - you can import on the new Zimbra server - run as root
 ```
 cd /opt/
 mkdir scripts
 cd scripts
 wget https://raw.githubusercontent.com/hodfords/zimbra-migration/main/src/import_zimbra.sh
 chmod 755 import_zimbra.sh
+./import_zimbra.sh 111.222.333.444
+```
+
+Once all the data has finished exporting - you can import on the new Carbonio server - run as roo=t
+```
+cd /opt/
+mkdir scripts
+cd scripts
+wget https://raw.githubusercontent.com/hodfords/zimbra-migration/main/src/import_carbonio.sh
+chmod 755 import_carbonio.sh
 ./import_zimbra.sh 111.222.333.444
 ```
 
