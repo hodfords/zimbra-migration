@@ -208,17 +208,17 @@ if [ ${RESPONSE_VAR} == "y" ]
               zimbraSignatureName=`echo $zimbraSignatureName | sed 's/^[[:space:]]*//; s/[[:space:]]*$//'`   
              
               # Create the Signature First
-              /opt/zimbra/bin/zmprov csig $i "${zimbraSignatureName}"
+              sudo -u zimbra /opt/zimbra/bin/zmprov csig $i "${zimbraSignatureName}"
 
               # Add HTML Signature 
               if [[ ${SIGNATURETYPE} == "HTML" ]]; then     
               echo "Execute Signature add /opt/zimbra/bin/zmprov msig $i ${zimbraSignatureName} zimbraPrefMailSignatureHTML ${zimbraPrefMailSignatureHTML}"  
-              /opt/zimbra/bin/zmprov msig $i "${zimbraSignatureName}" zimbraPrefMailSignatureHTML "${zimbraPrefMailSignatureHTML}"
+              sudo -u zimbra /opt/zimbra/bin/zmprov msig $i "${zimbraSignatureName}" zimbraPrefMailSignatureHTML "${zimbraPrefMailSignatureHTML}"
               fi
               
               if [[ ${SIGNATURETYPE} == "PLAIN" ]]; then  
               echo "Execute Signature add /opt/zimbra/bin/zmprov msig $i ${zimbraSignatureName} zimbraPrefMailSignature ${zimbraPrefMailSignature}"  
-              /opt/zimbra/bin/zmprov msig $i "${zimbraSignatureName}" zimbraPrefMailSignature "${zimbraPrefMailSignature}" 
+              sudo -u zimbra /opt/zimbra/bin/zmprov msig $i "${zimbraSignatureName}" zimbraPrefMailSignature "${zimbraPrefMailSignature}" 
               fi
 
               SIGNATUREADD="0"
