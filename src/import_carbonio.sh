@@ -538,6 +538,8 @@ if [ ${RESPONSE_VAR} == "y" ]
     echo "Start Email Migration!"
     read -s -p "Please Enter Admin Password for the Old Server: " OLD_ADMIN_PASSWORD
     echo ""
+    read -s -p "Please Enter Admin Login for the New Server: " NEW_ADMIN_LOGIN
+    echo ""
     read -s -p "Please Enter Admin Password for the New Server: " NEW_ADMIN_PASSWORD
     for i in `cat ${BACKUP_DIR}/emails.txt`
     do  
@@ -550,7 +552,7 @@ if [ ${RESPONSE_VAR} == "y" ]
     # imapsync --addheader --nosyncacls --syncinternaldates --nofoldersizes --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 ""   
     # Need to divide up - if mailboxes are really large - read RESPONSE_VAR
     export LC_ALL="en_US.UTF-8"
-    imapsync --addheader --errorsmax 100000 --nosyncacls --subscribe --syncinternaldates --nofoldersizes --skipsize --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 admin --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" --regexflag "s/:FLAG/_FLAG/g" --exclude "Chats"
+    imapsync --addheader --errorsmax 100000 --nosyncacls --subscribe --syncinternaldates --nofoldersizes --skipsize --host1 ${SOURCE} --ssl1 --user1 $i --authuser1 admin --password1 ${OLD_ADMIN_PASSWORD} --host2 localhost --ssl2 --user2 $i --authuser2 ${NEW_ADMIN_LOGIN} --password2 ${NEW_ADMIN_PASSWORD} --noauthmd5 --sep1 / --prefix1 / --sep2 / --prefix2 "" --regexflag "s/:FLAG/_FLAG/g" --exclude "Chats"
     echo "Finished Migration of emails for $i"
     done  
   else
