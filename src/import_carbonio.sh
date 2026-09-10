@@ -99,6 +99,7 @@ sleep 2
 #Sync 
 echo "Start Syncing Data from Source to Destination - you will be prompted for the root password by rsync...."
 rsync -azlgop --progress root@${SOURCE}:${SOURCE_DIR}/ ${BACKUP_DIR}/
+chown -R zextras:zextras ${BACKUP_DIR}
 echo "Finished Syncing Data from Source to Destination...."
 sleep 1
 
