@@ -1,4 +1,4 @@
-# Copyright 2024 Hodfords.com Ltd (https://www.hodfords.com/)
+# Copyright 2026 Hodfords.com Ltd (https://www.hodfords.com/)
 Released under GNU General Public License v3 (GPL-3)
 
 This script is free for anyone to use and can be distributed freely 
@@ -118,6 +118,9 @@ zmprov mcf zimbraPop3CleartextLoginEnabled TRUE
 - Added the ability to import preferences for each user
 - Added the export and re-import of different calendars, briefcases and contacts
 - Added the import of shared calendars, briefcases
+
+Import to Carbonio 
+- For importing briefcases to carbonio and the file shares from Zimbra - the script doesn't work very well - this is a known bug
 
 
 
