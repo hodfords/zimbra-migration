@@ -171,7 +171,7 @@ else
 fi
 
 echo "Exporting contacts..."
-for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Contacts?fmt=csv" > ${BACKUP_DIR}/contacts/$i.csv; echo -e "Finished downloading Contacts of $i";done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Contacts?fmt=csv" > ${BACKUP_DIR}/contacts/$i.csv; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Emailed Contacts?fmt=csv" >> ${BACKUP_DIR}/contacts/$i.csv; echo -e "Finished downloading Contacts of $i";done
 echo -en ''
 sleep 1
 
