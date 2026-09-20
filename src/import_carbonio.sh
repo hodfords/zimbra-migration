@@ -15,7 +15,7 @@
 #
 # The default backup directory is /opt/zmbackup and assumes that the directory on the source server is the same
 # 
-## Tested running Carbonio 23.11.0
+## Tested running Carbonio 26
 ## Script Name : import_carbonio.sh
 ## 
 ## Recommended location : /opt/scripts/import_carbonio.sh
@@ -359,7 +359,8 @@ if [ ${RESPONSE_VAR} == "y" ]
       if [ ${FILESIZE} -gt 25 ]
       then
       echo "Contacts import for $i"
-      sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i pru /Contacts "${BACKUP_DIR}/contacts/$i.csv"
+      # sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i pru /Contacts "${BACKUP_DIR}/contacts/$i.csv"
+      sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL -u "https://localhost:7071" /Contacts "${BACKUP_DIR}/contacts/$i.csv"
       #The curl method works too and is faster but requires admin password
       #curl -k -u admin:${ADMIN_PASSWORD} --upload-file '${BACKUP_DIR}/contacts/$i.csv' https://localhost:7071/home/$i/Contacts?fmt=csv 
       echo "Contacts imported for $i"
