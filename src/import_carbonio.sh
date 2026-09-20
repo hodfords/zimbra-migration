@@ -384,7 +384,7 @@ if [ ${RESPONSE_VAR} == "y" ]
           if [ ${FILESIZE} -gt 0 ]
           then
           echo "Main Calendar: $calendar import for $i"
-          sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "$calendar"
+          sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL -u "https://localhost:7071" "/?fmt=tgz&resolve=skip" "$calendar"
           echo "Main Calendar: $calendar imported for $i"
           fi
         done
@@ -408,7 +408,7 @@ if [ ${RESPONSE_VAR} == "y" ]
           if [ ${FILESIZE} -gt 0 ]
           then
           echo "Main Briefcase: $briefcase import for $i"
-          sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL "/?fmt=tgz&resolve=skip" "$briefcase"
+          sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL -u "https://localhost:7071" "/?fmt=tgz&resolve=skip" "$briefcase"
           echo "Main Briefcase: $briefcase imported for $i"
           fi
         done
