@@ -171,7 +171,7 @@ else
 fi
 
 echo "Exporting contacts..."
-for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Contacts?fmt=csv" > ${BACKUP_DIR}/contacts/$i.csv; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Emailed Contacts?fmt=csv" >> ${BACKUP_DIR}/contacts/$i.csv; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i -t 0 getRestURL "/Emailed Contacts/?fmt=tgz" > ${BACKUP_DIR}/contacts/EmailedContacts-$i.tgz; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i -t 0 getRestURL "/Contacts/?fmt=tgz" > ${BACKUP_DIR}/contacts/Contacts-$i.tgz;  echo -e "Finished downloading Contacts of $i";done
+for i in `cat ${BACKUP_DIR}/emails.txt`; do sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Contacts?fmt=csv" > ${BACKUP_DIR}/contacts/$i.csv; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i getRestURL "/Emailed Contacts?fmt=csv" >> ${BACKUP_DIR}/contacts/$i.csv; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i -t 0 getRestURL "/Emailed Contacts/?fmt=tgz" > ${BACKUP_DIR}/contacts/EmailedContacts-$i.tgz; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i -t 0 getRestURL "/Contacts/?fmt=tgz" > ${BACKUP_DIR}/contacts/Contacts-$i.tgz; sudo -u zimbra /opt/zimbra/bin/zmmailbox -z -m $i -t 0 getRestURL "/Tasks/?fmt=tgz" > ${BACKUP_DIR}/userdata/Tasks-$i.tgz; echo -e "Finished downloading Contacts of $i";done
 echo -en ''
 sleep 1
 ## Export Mail Filter Rules
