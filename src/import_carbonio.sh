@@ -345,27 +345,52 @@ ${LINE}"
   echo "Finished Importing Signatures and Autoresponders..."
 fi
 
-echo "Do you want to import contacts? (y/n)"
+echo "Do you want to import contacts and tasks? (y/n)"
 read RESPONSE_VAR
 if [ ${RESPONSE_VAR} == "y" ]
   then
   echo "Start Import of Contacts..."
   for i in `cat ${BACKUP_DIR}/emails.txt`
   do  
-  #signatures
-  if [ -e ${BACKUP_DIR}/contacts/$i.csv ]
+  #contacts
+  if [ -e ${BACKUP_DIR}/contacts/Contacts-$i.tgz ]
   then
-  FILESIZE=$(stat -c%s "${BACKUP_DIR}/contacts/$i.csv")
+  FILESIZE=$(stat -c%s "${BACKUP_DIR}/contacts/Contacts-$i.tgz")
       if [ ${FILESIZE} -gt 25 ]
       then
       echo "Contacts import for $i"
       # sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i pru /Contacts "${BACKUP_DIR}/contacts/$i.csv"
-      sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL -u "https://localhost:7071" /Contacts "${BACKUP_DIR}/contacts/$i.csv"
+      # sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i postRestURL -u "https://localhost:7071" /Contacts "${BACKUP_DIR}/contacts/$i.csv"
+      sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i -t 0 postRestURL -u "https://localhost:7071" "//?fmt=tgz&resolve=skip" "${BACKUP_DIR}/contacts/Contacts-$i.tgz"
       #The curl method works too and is faster but requires admin password
       #curl -k -u admin:${ADMIN_PASSWORD} --upload-file '${BACKUP_DIR}/contacts/$i.csv' https://localhost:7071/home/$i/Contacts?fmt=csv 
       echo "Contacts imported for $i"
       fi
   fi  
+
+  #Emailed contacts
+  if [ -e ${BACKUP_DIR}/contacts/EmailedContacts-$i.tgz ]
+  then
+  FILESIZE=$(stat -c%s "${BACKUP_DIR}/contacts/EmailedContacts-$i.tgz")
+      if [ ${FILESIZE} -gt 25 ]
+      then
+      echo "Emailed Contacts import for $i"
+      sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i -t 0 postRestURL -u "https://localhost:7071" "//?fmt=tgz&resolve=skip" "${BACKUP_DIR}/contacts/EmailedContacts-$i.tgz"
+      echo "Emailed Contacts imported for $i"
+      fi
+  fi  
+
+  #Tasks
+  if [ -e ${BACKUP_DIR}/contacts/Tasks-$i.tgz ]
+  then
+  FILESIZE=$(stat -c%s "${BACKUP_DIR}/contacts/Tasks-$i.tgz")
+      if [ ${FILESIZE} -gt 25 ]
+      then
+      echo "Tasks import for $i"
+      sudo -u zextras /opt/zextras/bin/zmmailbox -z -m $i -t 0 postRestURL -u "https://localhost:7071" "//?fmt=tgz&resolve=skip" "${BACKUP_DIR}/contacts/Tasks-$i.tgz"
+      echo "Tasks imported for $i"
+      fi
+  fi 
   done  
 fi 
 
